@@ -1,0 +1,10 @@
+# Java compiled output
+*.class
+
+# macOS
+.DS_Store
+
+# IDE
+.idea/
+*.iml
+.vscode/

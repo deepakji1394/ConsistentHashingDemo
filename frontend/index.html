@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consistent Hashing Demo</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Consistent Hashing Interactive Demo</h1>
+    <p class="subtitle">Ring size: 3600 &nbsp;|&nbsp; Hash: FNV-1a 32-bit &nbsp;|&nbsp; Routing: next clockwise node</p>
+
+    <div id="main-layout">
+        <!-- Ring visualization -->
+        <div id="canvas-container" style="position:relative">
+            <canvas id="ring-canvas" width="560" height="560"></canvas>
+            <div id="empty-hint">
+                Add a server to begin.<br>
+                <span style="font-size:0.75rem;color:#CBD5E0">Keys route to the next clockwise server.</span>
+            </div>
+        </div>
+
+        <!-- Control Panel -->
+        <div id="control-panel">
+
+            <div class="panel-section">
+                <h3>Add Server</h3>
+                <input id="server-name-input" type="text" placeholder="Server name (e.g. S1)">
+                <div class="slider-row">
+                    <span>Virtual nodes:</span>
+                    <input id="vn-slider" type="range" min="1" max="5" value="3">
+                    <span class="vn-badge" id="vn-count">3</span>
+                </div>
+                <button class="btn-add" id="add-server-btn">Add Server</button>
+            </div>
+
+            <div class="panel-section">
+                <h3>Remove Server</h3>
+                <select id="server-remove-select">
+                    <option value="">— select server —</option>
+                </select>
+                <button class="btn-remove" id="remove-server-btn">Remove Server</button>
+            </div>
+
+            <div class="panel-section">
+                <h3>Add Key</h3>
+                <input id="key-input"   type="text" placeholder="Key (e.g. user:42)">
+                <input id="value-input" type="text" placeholder="Value (e.g. Alice)">
+                <button class="btn-add" id="add-key-btn">Add Key</button>
+            </div>
+
+            <div class="panel-section">
+                <h3>Remove Key</h3>
+                <select id="key-remove-select">
+                    <option value="">— select key —</option>
+                </select>
+                <button class="btn-remove" id="remove-key-btn">Remove Key</button>
+            </div>
+
+            <div class="panel-section" id="legend-section">
+                <h3>Legend</h3>
+                <div id="legend-items">
+                    <span style="font-size:0.75rem;color:#A0AEC0">No servers yet.</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Explanation panel -->
+    <div id="explanation-panel">
+
+        <div id="concept-card">
+            <h3>How Consistent Hashing Works</h3>
+            <ul class="concept-list">
+                <li><b>Ring:</b> Hash space 0–3600 arranged as a circle. Every server and key maps to a point on it.</li>
+                <li><b>Server placement:</b> Each virtual node is placed at <code>FNV-1a("name#i") mod 3600</code>. Different indices spread nodes across the ring independently.</li>
+                <li><b>Key routing:</b> A key at position <em>P</em> routes to the <b>first server node found scanning clockwise</b> from <em>P</em>. If none exists before the end, it wraps back to 0.</li>
+                <li><b>Add server:</b> New nodes appear on the ring. Keys that are clockwise-between the previous node and the new node now route to the new server instead → <b>only a subset migrates</b>.</li>
+                <li><b>Remove server:</b> Its nodes vanish. Each orphaned key rescans clockwise and lands on the next remaining node → <b>keys spread to neighbours, not everyone</b>.</li>
+                <li><b>Virtual nodes:</b> More positions per server ≈ smoother load distribution. Without them, unequal spacing causes hotspots.</li>
+            </ul>
+        </div>
+
+        <div id="operation-card">
+            <h3>Last Operation — Step-by-step</h3>
+            <div id="detail-content">
+                <p class="exp-empty">Perform an operation above to see the step-by-step explanation here.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Status log -->
+    <div id="status-log">
+        <h3>Operation Log</h3>
+        <ul id="log-list"></ul>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
